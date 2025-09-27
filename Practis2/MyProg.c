@@ -31,10 +31,10 @@ int isOnlyDigits(char* str) {
     
     for (int i = 0; i < strlen(str); i++) {
         if (!isdigit(str[i])) {
-            return 0;
+            return 0; 
         }
     }
-    return 1;
+    return 1; 
 }
 
 void RunThreads() {
@@ -50,10 +50,10 @@ void RunThreads() {
             
             if (fgets(input, sizeof(input), stdin) != NULL) {
                 if (isOnlyDigits(input)) {
-                    seconds = atoi(input);
+                    seconds = atoi(input); 
                     
                     if (seconds > 0) {
-                        break;
+                        break; 
                     } else {
                         printf("Ошибка! Число должно быть больше 0.\n");
                     }
@@ -87,8 +87,9 @@ void RunThreads() {
 
 int main() {
     setlocale(LC_ALL, "Russian");
+    
+    char input[10];
     char choice;
-    int result;
     
     do {
         RunThreads();
@@ -98,21 +99,25 @@ int main() {
             printf("r - перезапустить\n");
             printf("x - выйти из программы\n");
             printf("Ваш выбор: ");
-            result = scanf(" %c", &choice);
             
-            if (result != 1) {
-                printf("Ошибка ввода! Попробуйте снова.\n");
-                while (getchar() != '\n'); // Очистка буфера
-                continue;
+            // Используем fgets() для единообразности
+            if (fgets(input, sizeof(input), stdin) != NULL) {
+                // Удаляем символ новой строки
+                input[strcspn(input, "\n")] = 0;
+                
+                // Проверяем, что введен только один символ
+                if (strlen(input) == 1) {
+                    choice = tolower(input[0]);
+                    
+                    if (choice == 'r' || choice == 'x') {
+                        break; // Корректный выбор
+                    }
+                }
             }
             
-            choice = tolower(choice);
+            printf("Ошибка! Введите 'r' или 'x'\n");
             
-            if (choice != 'r' && choice != 'x') {
-                printf("Ошибка! Введите 'r' или 'x'\n");
-            }
-            
-        } while (result != 1 || (choice != 'r' && choice != 'x'));
+        } while (1);
         
     } while (choice == 'r');
     
