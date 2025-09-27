@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <locale.h>
+#include <string.h>
 
 #define THREAD_COUNT 5
 
@@ -22,21 +23,18 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 }
 
 int isOnlyDigits(char* str) {
-    // Удаляем символ новой строки, если есть
     str[strcspn(str, "\n")] = 0;
     
-    // Проверяем, что строка не пустая
     if (strlen(str) == 0) {
         return 0;
     }
     
-    // Проверяем каждый символ
     for (int i = 0; i < strlen(str); i++) {
         if (!isdigit(str[i])) {
-            return 0; // Найден не-цифровой символ
+            return 0;
         }
     }
-    return 1; // Все символы - цифры
+    return 1;
 }
 
 void RunThreads() {
@@ -51,12 +49,11 @@ void RunThreads() {
             printf("Поток %d (в секундах): ", i + 1);
             
             if (fgets(input, sizeof(input), stdin) != NULL) {
-                // Проверяем, что введены только цифры
                 if (isOnlyDigits(input)) {
-                    seconds = atoi(input); // Преобразуем в число
+                    seconds = atoi(input);
                     
                     if (seconds > 0) {
-                        break; // Валидное число больше 0
+                        break;
                     } else {
                         printf("Ошибка! Число должно быть больше 0.\n");
                     }
