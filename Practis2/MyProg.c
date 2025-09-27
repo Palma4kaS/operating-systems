@@ -21,29 +21,52 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
     return 0;
 }
 
+int isOnlyDigits(char* str) {
+    // Удаляем символ новой строки, если есть
+    str[strcspn(str, "\n")] = 0;
+    
+    // Проверяем, что строка не пустая
+    if (strlen(str) == 0) {
+        return 0;
+    }
+    
+    // Проверяем каждый символ
+    for (int i = 0; i < strlen(str); i++) {
+        if (!isdigit(str[i])) {
+            return 0; // Найден не-цифровой символ
+        }
+    }
+    return 1; // Все символы - цифры
+}
+
 void RunThreads() {
     HANDLE threads[THREAD_COUNT];
     ThreadData threadData[THREAD_COUNT];
+    char input[100];
     int seconds;
-    int result;
     
     printf("\nВведите длительность для 5 потоков:\n");
     for (int i = 0; i < THREAD_COUNT; i++) {
         do {
             printf("Поток %d (в секундах): ", i + 1);
-            result = scanf("%d", &seconds);
             
-            if (result != 1) {
-                printf("Ошибка! Вводите только числа. Попробуйте снова.\n");
-                while (getchar() != '\n'); // Очистка буфера от некорректного ввода
-                continue;
+            if (fgets(input, sizeof(input), stdin) != NULL) {
+                // Проверяем, что введены только цифры
+                if (isOnlyDigits(input)) {
+                    seconds = atoi(input); // Преобразуем в число
+                    
+                    if (seconds > 0) {
+                        break; // Валидное число больше 0
+                    } else {
+                        printf("Ошибка! Число должно быть больше 0.\n");
+                    }
+                } else {
+                    printf("Ошибка! Вводите только цифры (без букв и символов).\n");
+                }
+            } else {
+                printf("Ошибка чтения ввода!\n");
             }
-            
-            if (seconds < 1) {
-                printf("Ошибка! Число должно быть больше 0.\n");
-            }
-            
-        } while (result != 1 || seconds < 1);
+        } while (1);
         
         // Подготовка данных для потока
         threadData[i].threadNumber = i + 1;
