@@ -25,22 +25,26 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 void RunThreads() {
     HANDLE threads[THREAD_COUNT];
     ThreadData threadData[THREAD_COUNT];
-    int seconds[THREAD_COUNT];
+    int seconds;
     
     printf("\nEnter duration for 5 threads:\n");
     for (int i = 0; i < THREAD_COUNT; i++) {
-        printf("Thread %d (in seconds): ", i + 1);
-        scanf("%d", &seconds[i]);
+        do {
+            printf("Thread %d (in seconds): ", i + 1);
+            while (scanf("%d", &seconds) != 1 || seconds < 1) {
+                printf("Error! Enter a number greater than 0: ");
+                while (getchar() != '\n'); // Очистка буфера
+            }
+        } while (seconds < 1);
         
-        // Подготовка данных для потока
         threadData[i].threadNumber = i + 1;
-        threadData[i].seconds = seconds[i];
+        threadData[i].seconds = seconds;
     }
     
     printf("\nStarting threads...\n");
-    for (int i = 0; i < 5; i++) {
-            threads[i] = CreateThread(NULL, 0, ThreadFunction, &threadData[i], 0, NULL);
-            // Атрибут безопасности, размер стека, адрес функции потока, параметры потока, флаги создания, указатель на ID потока
+    for (int i = 0; i < THREAD_COUNT; i++) {
+        threads[i] = CreateThread(NULL, 0, ThreadFunction, &threadData[i], 0, NULL);
+        // Атрибут безопасности, размер стека, адрес функции потока, параметры потока, флаги создания, указатель на ID потока
     }
     
     WaitForMultipleObjects(THREAD_COUNT, threads, TRUE, INFINITE);
@@ -59,18 +63,18 @@ int main() {
     
     do {
         RunThreads();
-        
-        printf("\nChoose an action:\n");
-        printf("r - restart\n");
-        printf("x - exit program\n");
-        printf("Your choice: ");
-        
-        scanf(" %c", &choice);
-        choice = tolower(choice);
-        
-        if (choice != 'r' && choice != 'x') {
-            printf("Invalid choice. Use 'r' or 'x'\n");
-        }
+        do {
+            printf("\nChoose an action:\n");
+            printf("r - restart\n");
+            printf("x - exit program\n");
+            printf("Your choice: ");
+            scanf(" %c", &choice);
+            choice = tolower(choice);
+            
+            if (choice != 'r' && choice != 'x') {
+                printf("Error! Enter 'r' or 'x'\n");
+            }
+        } while (choice != 'r' && choice != 'x');
         
     } while (choice == 'r');
     
