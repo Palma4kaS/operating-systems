@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <ctype.h>
 
 #define THREAD_COUNT 5
 
@@ -9,31 +9,24 @@ typedef struct {
     int seconds;
 } ThreadData;
 
-// Мьютекс для синхронизации вывода в консоль
-HANDLE consoleMutex;
 
-// Функция потока
 DWORD WINAPI ThreadFunction(LPVOID lpParam) {
     ThreadData* data = (ThreadData*)lpParam;
     
     Sleep(data->seconds * 1000);
     
-    // Синхронизированный вывод о завершении потока
-    WaitForSingleObject(consoleMutex, INFINITE);
+
     printf("Thread %d completed (duration: %d sec)\n", 
            data->threadNumber, data->seconds);
-    ReleaseMutex(consoleMutex);
     
     return 0;
 }
 
-// Функция для запуска потоков
 void RunThreads() {
     HANDLE threads[THREAD_COUNT];
     ThreadData threadData[THREAD_COUNT];
     int seconds[THREAD_COUNT];
     
-    // Запрос длительности для каждого потока
     printf("\nEnter duration for 5 threads:\n");
     for (int i = 0; i < THREAD_COUNT; i++) {
         printf("Thread %d (in seconds): ", i + 1);
@@ -50,10 +43,8 @@ void RunThreads() {
             // Атрибут безопасности, размер стека, адрес функции потока, параметры потока, флаги создания, указатель на ID потока
     }
     
-    // Ожидание завершения всех потоков
     WaitForMultipleObjects(THREAD_COUNT, threads, TRUE, INFINITE);
     
-    // Закрытие хэндлов потоков
     for (int i = 0; i < THREAD_COUNT; i++) {
         CloseHandle(threads[i]);
     }
@@ -63,8 +54,6 @@ void RunThreads() {
 
 int main() {
     
-    // Создание мьютекса для синхронизации вывода
-    consoleMutex = CreateMutex(NULL, FALSE, NULL);
     
     char choice;
     
@@ -85,8 +74,6 @@ int main() {
         
     } while (choice == 'r');
     
-    // Закрытие мьютекса
-    CloseHandle(consoleMutex);
     
     printf("Program terminated.\n");
     return 0;
